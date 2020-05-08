@@ -36,9 +36,55 @@ ___
 
 ## Step 2. Selecting an available operator
 
-1. Create the list of online operators (objects [ObjectUser](https://developers.trueconf.com/api/server/#api-Objects-User) [in the list](#Step-1.-Obtaining-the-list-of-operators) will have `status = 1`).
+1. Create the list of online operators (objects [ObjectUser](https://developers.trueconf.com/api/server/#api-Objects-User) in [the list](#step-1-obtaining-the-list-of-operators) will have `status = 1`).
 1. Randomly choose one operator from the list. [TrueConf ID](https://trueconf.com/blog/wiki/trueconf-id) of the selected user must differ from the one you specified in step 5 in the previous iteration.
-1. If there is no available operator, return to [step 1](#Step-1.-Obtaining-the-list-of-operators) after a short period of time (for example, 10 seconds)
+1. If there is no available operator, return to [step 1](#step-1-obtaining-the-list-of-operators) after a short period of time (for example, 10 seconds)
 1. Repeat attempts to find an available operator the required number of times (e.g. 3 times) or within a specified period of time (e.g. 30 seconds).
 
+## Step 3. Creating a conference
 
+[Create a new conference](https://developers.trueconf.com/api/server/#api-Conferences-CreateConference) with the following parameters:
+
+* [owner](https://trueconf.com/blog/wiki/owner) and [participant](https://trueconf.com/blog/wiki/conference-participant) - set the selected operator in both entry fields.
+* number of participants - 2.
+* conference schedule - [virtual room](https://trueconf.com/blog/wiki/virtual-room) (without schedule).
+* conference type - public, so the website guest can connect via WebRTC application.
+* [conference mode](https://trueconf.com/blog/knowledge-base/the-ultimate-guide-to-conference-modes.html) - symmetric.
+
+## Step 4. Starting a conference
+
+After you've created the conference, [start it](https://developers.trueconf.com/api/server/#api-Conferences-RunConference). Operator will automatically receive an invitation as a participant.
+
+## Step 5. Checking the operator’s status
+
+Some time after the conference starts (e.g., 10 seconds), [check](https://developers.trueconf.com/api/server/#api-Conferences_Participants-GetParticipantList) whether the selected operator is connected to the conference. If the operator didn’t accept the call, complete the following steps:
+
+1. Write the operator’s TrueConf ID.
+1. [Stop the conference](https://developers.trueconf.com/api/server/#api-Conferences-StopConference).
+1. [Delete the conference](https://developers.trueconf.com/api/server/#api-Conferences-DeleteConference).
+1. Return to the [step 1](#step-1-obtaining-the-list-of-operators).
+
+## Step 6. Obtaining the guest link
+
+Obtain the guest link for the created conference from the [client applications list](https://developers.trueconf.com/api/server/#api-Software_Clients-GetClientList) to connect via WebRTC widget.
+
+## Step 7. Embedding the widget on the website
+
+Create a widget to embed it on the website in a form of HTML element `<iframe>` by setting the guest link as a path for downloading content.
+
+## Step 8. Ending the call
+
+You can track the ending of a call with the help of [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) technology (widget will send the  `connectionClosed` message). When the call ends, do the following steps:
+
+1. Delete the embedded widget.
+1. [Stop the video conference](https://developers.trueconf.com/api/server/#api-Conferences-StopConference).
+1. [Delete the video conference](https://developers.trueconf.com/api/server/#api-Conferences-DeleteConference) from the server.
+
+## Additional settings
+
+If necessary, you can forbid the guests to use some [features of WebRTC client](https://trueconf.com/blog/knowledge-base/embedding-trueconf-video-conferencing-into-your-website.html#How_to_customize_conference_webpage) (e.g. content sharing).
+
+:point_right: ***Tip*** 
+> To save the history of communication between operators and customers, you can [set up automatic recording of video calls](https://trueconf.com/blog/knowledge-base/how-to-record-video-conference.html#How_to_record_video_conferences_on_TrueConf_Server_side).
+
+You can get acquainted with the example of HTML website and the described algorithm on GitHub.
